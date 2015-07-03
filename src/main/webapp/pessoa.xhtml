@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html >
+	<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<script type="text/javascript" src="#{request.contextPath}/script/jquery-1.11.3.js"/>
+	<script type="text/javascript" src="#{request.contextPath}/script/jquery.serialize-object.min.js"/>
+	<script type="text/javascript" src="#{request.contextPath}/script/String.js"/>
+	<script type="text/javascript" src="#{request.contextPath}/script/messages.js"/>
+	<title>EMAILS</title>
+	
+	<script type="text/javascript">
+	
+	function criaBotaoImagemApagar(parrent, pessoa, index) {
+		var button = $(document.createElement("button"));
+		button.attr("id", "pessoaButton_" + index);
+		button.append("Apagar");
+		button.click(pessoa, 
+			function (event) {
+				apagarPessoa(event.data);
+			});
+		parrent.append(button);
+	}
+	
+	function toHTML(pessoa, index) {
+		tblContent = $("#tblPessoaContent");
+		
+		var tr = $(document.createElement("tr")); 
+		tblContent.append(tr);
+		var td = $(document.createElement("td")).append(pessoa.nome);
+		tr.append(td);
+		
+		td = $(document.createElement("td")).append(pessoa.email);
+		tr.append(td);
+		
+		dataNasc = new Date(pessoa.dataNascimento);
+		var dateStr = '%02d/%02d/%04d'.sprintf(dataNasc.getDate(), dataNasc.getMonth(), dataNasc.getFullYear());
+		td = $(document.createElement("td")).append(dateStr);
+		tr.append(td);
+		
+		td = $(document.createElement("td"));
+		criaBotaoImagemApagar(td, pessoa, index);
+		tr.append(td);
+		
+		
+	}
+	
+	function loadPessoaList() {
+		$.ajaxSetup({
+			headers: {Accept: "application/json"}
+		});
+		
+		$("#tblPessoaContent").fadeToggle(1);
+		$("#tblPessoaContent").empty();
+		$.get("#{request.contextPath}/rest/pessoa/list", function (resultData) {
+			resultData.forEach(toHTML);
+		});
+		$("#tblPessoaContent").fadeToggle(1000);
+	}
+	
+	function cadastraPessoa() {
+		var form = $("#formPessoa");
+		var formData = form.serializeObject();
+		formData.dataNascimento = new Date(formData.dataNascimento);
+		var url = "#{request.contextPath}/rest/pessoa/cadastrar";
+		
+		$.ajaxSetup({
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json"
+			}
+		});
+		var posting = $.post(url, JSON.stringify(formData))
+		.done(function( data ) {
+			loadPessoaList();
+		 })
+		 .fail(function ( data ) {
+		    alert(eval(data.responseText));
+		 });	
+	}
+	
+	function apagarPessoa(pessoa) {
+		var url = "#{request.contextPath}/rest/pessoa/apagar";
+		
+		$.ajaxSetup({
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json"
+			}
+		});
+		var posting = $.post(url, JSON.stringify(pessoa))
+		.done(function( data ) {
+			loadPessoaList();
+		 })
+		 .fail(function ( data ) {
+		    alert(eval(data.responseText));
+		 });	
+	}
+	
+	</script>
+	</head>
+	<body onload="javascript:loadPessoaList()">
+	
+	<h1>EMAILS</h1>
+	
+	<form id="formPessoa">
+		<fieldset style="margin-top: 10px; width: 700px">
+			Nome: <input id="nome" name="nome" style="width: 65%" type="text" maxlength="100" required="required"/>
+			<br />
+			Email: <input id="email" name="email" style="width: 65%" type="text" maxlength="100" required="required"
+									pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})"
+									title="Email fora do formato"/>
+			<br />
+			Data Nascimento: <input id="dataNascimento" name="dataNascimento" style="width: 20%" 
+									type="text" maxlength="10" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
+									title="Data de Nascimento DD/MM/YYYY" required="required"/>
+			<br />
+			<br />
+			<button id="btnAdicionar" type="button" onclick="javascript:cadastraPessoa()">Adicionar</button>
+		</fieldset>
+	</form>
+	
+	<table id="tblPessoa" style="margin-top: 50px; width: 720px" border="1">
+		<thead>
+			<tr>
+				<th style="width: 35%">NOME</th>
+				<th style="width: 35%">EMAIL</th>
+				<th style="width: 15%">NASCIMENTO</th>
+				<th style="width: 15%">Ações</th>
+			</tr>
+		</thead>
+		<tbody id="tblPessoaContent">
+		</tbody>
+	</table>
+	
+	</body>
+</html>
