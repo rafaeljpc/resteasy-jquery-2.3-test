@@ -53,8 +53,8 @@
 	
 	function adicionarTelefone() {
 		var telefone = {
-			tipoTelefone: $("#tipoTelefone").val(),
-			telefone: $("#telefone").val()
+			tipo: $("#tipo").val(),
+			numero: $("#telefone").val()
 		};
 		
 		if($.isEmptyObject(pessoaSelecionada.telefones)) {
@@ -69,7 +69,10 @@
 	function reloadTabelaTelefone() {
 		var telefones = pessoaSelecionada.telefones;
 		
+		$("#tblTelefoneContent").fadeToggle(1);
+		$("#tblTelefoneContent").empty();
 		telefones.forEach(toTelefoneHTML);
+		$("#tblTelefoneContent").fadeToggle(1000);
 	}
 	
 	function toTelefoneHTML(telefone, index) {
@@ -81,12 +84,37 @@
 		var td = $(document.createElement("td")).append(index + 1);
 		tr.append(td);
 		
-		td = $(document.createElement("td")).append(telefone.tipoTelefone);
+		td = $(document.createElement("td")).append(telefone.tipo);
 		tr.append(td);
 		
-		td = $(document.createElement("td")).append(telefone.telefone);
+		td = $(document.createElement("td")).append(telefone.numero);
 		tr.append(td);
 		
+	}
+	
+	function alterarPessoa() {
+		var url = "#{request.contextPath}/rest/pessoa/atualizar";
+		
+		if($.isEmptyObject(pessoaSelecionada)) {
+			if ($.isEmptyObject(pessoaSelecionada.nome))
+				return false;
+			if ($.isEmptyObject(pessoaSelecionada.email))
+				return false;
+		}
+		
+		$.ajaxSetup({
+			headers: {
+				Accept: "application/json",
+				"Content-Type": "application/json"
+			}
+		});
+		var posting = $.post(url, JSON.stringify(pessoaSelecionada))
+		.done(function( data ) {
+			loadPessoaCombo();
+		 })
+		 .fail(function ( data ) {
+		    alert(eval(data.responseText));
+		 });
 	}
 	
 	</script>
@@ -99,11 +127,15 @@
 		Voltar
 	</button>
 	
+	<button type="submit" style="margin-top: 10px" onclick="javascript:alterarPessoa()">
+		Salvar Pessoa Selecionada
+	</button>
+	
 	<form id="formPessoa">
 		<fieldset style="margin-top: 10px; width: 700px">
 			Pessoa: <select id="comboPessoa" name="pessoa" style="width: 65%"/>
 			<br />
-			Type: <input id="tipoTelefone" name="tipoTelefone" style="width: 65%" type="text" maxlength="20" required="required"
+			Type: <input id="tipo" name="tipo" style="width: 65%" type="text" maxlength="20" required="required"
 									title="Tipo telefone"/>
 			<br />
 			Telefone: <input id="telefone" name="telefone" style="width: 65%" type="text" maxlength="15" required="required"
