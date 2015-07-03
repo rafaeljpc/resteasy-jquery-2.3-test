@@ -64,6 +64,20 @@ public class PessoaRestService {
 		cadastrar(pessoa);
 	}
 	
+	@POST
+	@Path("/atualizar")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void atualizar(Pessoa pessoa) throws PessoaDuplicadaException {
+		PESSOA_DB.remove(pessoa);
+		PESSOA_DB.add(pessoa);
+	}
+	
+	@POST
+	@Path("/atualizar")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void atualizarJSON(Pessoa pessoa) throws PessoaDuplicadaException {
+		atualizar(pessoa);
+	}	
 	
 	@POST
 	@Path("/limpar")

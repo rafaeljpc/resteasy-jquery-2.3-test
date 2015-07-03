@@ -1,7 +1,9 @@
 package com.docyousign.resteasytest;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.FormParam;
 
@@ -12,6 +14,8 @@ public class Pessoa implements Serializable {
 	private String nome;
 	private String email;
 	private Date dataNascimento;
+	
+	private List<Telefone> telefones = new ArrayList<Telefone>();
 	
 	
 	public String getNome() {
@@ -42,7 +46,15 @@ public class Pessoa implements Serializable {
 		this.dataNascimento = dataNascimento;
 	}
 	
-	
+	@FormParam("telefones")
+	public List<Telefone> getTelefones() {
+		return telefones;
+	}
+
+	public void setTelefones(List<Telefone> telefones) {
+		this.telefones = telefones;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
